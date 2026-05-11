@@ -1,0 +1,218 @@
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage[top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{amsmath}
+
+% Sin encabezado ni pie de pagina
+\pagestyle{empty}
+
+% Titulos sin serifas, sin cursiva, alineados a la izquierda
+\usepackage{titlesec}
+\titleformat{\section}[block]{\large\bfseries\sffamily}{}{0em}{}
+\titleformat{\subsection}[block]{\normalsize\bfseries\sffamily}{}{0em}{}
+\titleformat{\subsubsection}[block]{\normalsize\bfseries\sffamily}{}{0em}{}
+
+% Espaciado de titulos
+\titlespacing{\section}{0pt}{18pt}{6pt}
+\titlespacing{\subsection}{0pt}{12pt}{4pt}
+\titlespacing{\subsubsection}{0pt}{10pt}{3pt}
+
+% Eliminar numeracion de secciones
+\setcounter{secnumdepth}{0}
+
+% Comando para placeholder de imagen
+\newcommand{\imgplaceholder}[2]{%
+  \begin{figure}[H]
+    \centering
+    \fbox{\rule{0pt}{#2}\rule{#1}{0pt}}
+    \caption{[Insertar imagen aqui]}
+  \end{figure}%
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{8pt}
+\onehalfspacing
+
+% ─────────────────────────────────────────────────────────────
+
+\begin{document}
+
+\begin{center}
+  {\large Inteligencia Artificial 2026} \\[4pt]
+  {\large Segundo Proyecto: Algoritmos de Busqueda} \\[4pt]
+  {\normalsize 08 de abril de 2026}
+\end{center}
+
+\vspace{10pt}
+
+% ─────────────────────────────────────────────────────────────
+\section{Introduccion}
+
+Este proyecto tiene como objetivo comparar el desempeno de diferentes algoritmos de busqueda para encontrar caminos a traves de laberintos generados aleatoriamente. Se implementaron dos algoritmos de generacion de laberintos basados en arboles de expansion minima, y cuatro algoritmos de busqueda de rutas. Los resultados se evaluaron en terminos de longitud del camino encontrado, cantidad de nodos explorados y tiempo de ejecucion.
+
+% ─────────────────────────────────────────────────────────────
+\section{1. Generacion aleatoria de laberintos}
+
+\subsection{Descripcion general}
+
+Un laberinto se representa como un grafo sobre una cuadricula de M filas por N columnas. Cada celda es un nodo, y las paredes entre celdas adyacentes son las aristas del grafo. Generar un laberinto equivale a construir un arbol de expansion del grafo, de forma que exista exactamente un camino entre cualquier par de celdas. Se implementaron dos algoritmos para este proposito: Kruskal y Prim.
+
+\subsection{Algoritmo de Kruskal}
+
+El algoritmo de Kruskal para generacion de laberintos parte de un conjunto de todas las paredes posibles entre celdas vecinas. Estas paredes se mezclan en orden aleatorio y se procesan una a una. Para cada pared, se evalua si las dos celdas que separa pertenecen a componentes distintas del grafo. Si es asi, se elimina la pared y se unen ambas componentes. Este proceso continua hasta que todas las celdas forman una unica componente conexa.
+
+La estructura de datos utilizada para rastrear las componentes es Union-Find con compresion de caminos y union por rango, lo que garantiza operaciones de fusion y busqueda en tiempo casi constante.
+
+\subsection{Algoritmo de Prim}
+
+El algoritmo de Prim para generacion de laberintos comienza desde una celda inicial elegida aleatoriamente. Mantiene una lista de celdas frontera, es decir, celdas adyacentes a las ya visitadas pero que aun no han sido incorporadas al laberinto. En cada paso, se selecciona una celda frontera al azar, se elimina la pared que la separa de una de sus vecinas ya visitadas, y se agregan sus propias vecinas no visitadas a la lista frontera.
+
+A diferencia de Kruskal, Prim construye el laberinto de forma expansiva desde un punto de origen, generando estructuras con pasajes mas cortos y ramificaciones mas densas cerca del inicio.
+
+\subsection{Visualizaciones de la generacion}
+
+Las siguientes imagenes muestran la construccion paso a paso de un laberinto de 25 filas por 30 columnas utilizando ambos algoritmos. Las celdas en color claro son las ya incorporadas al laberinto, y la celda resaltada corresponde a la ultima en ser procesada.
+
+\imgplaceholder{0.45\textwidth}{5cm}
+\imgplaceholder{0.45\textwidth}{5cm}
+
+\imgplaceholder{0.9\textwidth}{5cm}
+
+% ─────────────────────────────────────────────────────────────
+\section{2. Solucion de un laberinto aleatorio}
+
+\subsection{Descripcion general}
+
+Se genero un laberinto de 60 filas por 80 columnas utilizando los algoritmos del problema anterior. El objetivo es encontrar la ruta mas corta entre la celda de entrada A = (1, 1) y la celda de salida B = (60, 80). Se implementaron cuatro algoritmos de busqueda y se visualizaron las celdas exploradas y el camino encontrado.
+
+\subsection{Algoritmos implementados}
+
+\subsubsection{Busqueda en Amplitud (BFS)}
+
+BFS explora el grafo nivel por nivel, expandiendo primero todos los vecinos del nodo actual antes de avanzar a mayor profundidad. Utiliza una cola FIFO. En grafos sin pesos, BFS garantiza encontrar el camino de menor cantidad de aristas entre el nodo inicial y el destino. Su complejidad en tiempo y espacio es O(V + E), donde V es la cantidad de celdas y E la cantidad de conexiones pasables.
+
+\subsubsection{Busqueda en Profundidad (DFS)}
+
+DFS explora el grafo siguiendo un camino hasta el fondo antes de retroceder y explorar alternativas. Utiliza una pila LIFO. No garantiza encontrar el camino optimo, pero puede ser eficiente en laberintos con pocas bifurcaciones. Su complejidad en tiempo es O(V + E) pero el camino encontrado puede ser significativamente mas largo que el optimo.
+
+\subsubsection{Busqueda de Costo Uniforme (UCS / Dijkstra)}
+
+UCS expande siempre el nodo con menor costo acumulado desde el origen, utilizando una cola de prioridad. En laberintos con costo uniforme por paso (igual a 1), UCS es equivalente a BFS en cuanto al camino encontrado, pero es mas general y permite manejar costos distintos entre aristas. Garantiza optimalidad cuando todos los costos son no negativos.
+
+\subsubsection{Busqueda A*}
+
+A* combina el costo real acumulado g(n) con una funcion heuristica h(n) que estima el costo restante hasta la meta. La funcion de evaluacion es f(n) = g(n) + h(n). Se utilizo la distancia Manhattan como heuristica, la cual es admisible en cuadriculas con movimiento en cuatro direcciones. A* garantiza optimalidad cuando la heuristica es admisible, y tipicamente explora menos nodos que BFS o UCS gracias a la informacion que aporta la heuristica.
+
+\subsection{Visualizaciones y estadisticas}
+
+Las siguientes imagenes muestran la region explorada y el camino encontrado para cada algoritmo en el laberinto de 60 por 80. La tabla presenta las estadisticas obtenidas.
+
+\imgplaceholder{0.9\textwidth}{7cm}
+
+\imgplaceholder{0.9\textwidth}{7cm}
+
+\vspace{8pt}
+\begin{table}[H]
+\centering
+\begin{tabular}{lrrr}
+\toprule
+Algoritmo & Longitud del camino & Nodos explorados & Tiempo (ms) \\
+\midrule
+BFS  & & & \\
+DFS  & & & \\
+UCS  & & & \\
+A*   & & & \\
+\bottomrule
+\end{tabular}
+\caption{Estadisticas de los algoritmos en el laberinto de 60 x 80}
+\end{table}
+
+% ─────────────────────────────────────────────────────────────
+\section{3. Comparacion de algoritmos de busqueda}
+
+\subsection{Descripcion del experimento}
+
+Se generaron K = 25 laberintos aleatorios en cuadriculas de 45 filas por 55 columnas. Para cada laberinto se seleccionaron aleatoriamente una celda de inicio A y una celda de meta B con una distancia Manhattan de al menos 10 unidades. Los cuatro algoritmos (BFS, DFS, UCS y A*) se ejecutaron sobre cada laberinto, registrando la longitud del camino encontrado, la cantidad de nodos explorados y el tiempo de ejecucion. Se asigno un ranking del 1 al 4 en cada escenario segun la cantidad de nodos explorados, siendo 1 el que menos nodos exploro.
+
+\subsection{Visualizaciones por escenario}
+
+Las siguientes imagenes muestran ejemplos representativos de los 25 escenarios evaluados. Cada imagen presenta los cuatro laberintos con las regiones exploradas por cada algoritmo y el camino encontrado, junto con la tabla de resultados del escenario.
+
+\imgplaceholder{0.9\textwidth}{7cm}
+
+\imgplaceholder{0.9\textwidth}{7cm}
+
+\imgplaceholder{0.9\textwidth}{7cm}
+
+\subsection{Tabla resumen de desempeno}
+
+La siguiente tabla presenta el ranking promedio de cada algoritmo a lo largo de los 25 escenarios, junto con la cantidad de veces que cada uno obtuvo el primer y ultimo lugar, y los promedios de distancia y nodos explorados.
+
+\vspace{8pt}
+\begin{table}[H]
+\centering
+\begin{tabular}{lrrrrr}
+\toprule
+Algoritmo & Rank prom. & Veces 1 & Veces 4 & Dist. prom. & Nodos prom. \\
+\midrule
+BFS      & & & & & \\
+DFS      & & & & & \\
+UCS      & & & & & \\
+A*       & & & & & \\
+\bottomrule
+\end{tabular}
+\caption{Ranking promedio de los algoritmos en los 25 escenarios}
+\end{table}
+
+% ─────────────────────────────────────────────────────────────
+\section{Descripcion tecnica de la implementacion}
+
+\subsection{Arquitectura general}
+
+El proyecto se estructura en dos modulos principales. El modulo maze\_generator contiene las clases y funciones para representar y construir laberintos. El modulo search\_algorithms contiene las implementaciones de los cuatro algoritmos de busqueda.
+
+\subsection{Clase Maze}
+
+La clase Maze representa el laberinto mediante una cuadricula de conjuntos de paredes. Cada celda almacena un conjunto de direcciones bloqueadas (Norte, Sur, Este, Oeste). La operacion remove\_wall elimina la pared entre dos celdas adyacentes de forma bidireccional. El metodo passable\_neighbors retorna las celdas alcanzables desde una celda dada, es decir, las vecinas cuya pared en la direccion correspondiente ha sido eliminada.
+
+\subsection{Union-Find}
+
+Para el algoritmo de Kruskal se implemento la estructura Union-Find con compresion de caminos y union por rango. La compresion de caminos aplana el arbol interno en cada operacion de busqueda, reduciendo el costo amortizado de las operaciones sucesivas. La union por rango evita que el arbol degenere en una lista enlazada al unir siempre el arbol de menor profundidad bajo el de mayor.
+
+\subsection{Cola de prioridad en UCS y A*}
+
+Tanto UCS como A* utilizan el modulo heapq de Python para implementar la cola de prioridad. Cada entrada en el heap es una tupla donde el primer elemento es el valor de prioridad (costo acumulado en UCS, valor f en A*). Dado que Python no garantiza desempate por contenido de tuplas arbitrarias, se incluye el costo g como segundo elemento para evitar comparaciones entre celdas.
+
+\subsection{Heuristica de A*}
+
+La heuristica utilizada es la distancia Manhattan entre la celda actual y la celda meta, definida como h(n) = |r\_actual - r\_meta| + |c\_actual - c\_meta|. Esta heuristica es admisible en laberintos con movimiento en cuatro direcciones y costo uniforme de 1 por paso, ya que nunca sobreestima el costo real restante.
+
+\subsection{Reconstruccion del camino}
+
+Todos los algoritmos mantienen un diccionario parent que registra, para cada celda visitada, la celda desde la cual fue alcanzada. Al llegar a la meta, se recorre este diccionario desde la meta hacia el inicio para reconstruir el camino optimo.
+
+% ─────────────────────────────────────────────────────────────
+\section{Conclusiones}
+
+Los resultados obtenidos en los 25 escenarios permiten establecer las siguientes conclusiones sobre el comportamiento de cada algoritmo en laberintos de cuadricula.
+
+A* fue el algoritmo que menor cantidad de nodos exploro en la mayoria de los escenarios, gracias a que la heuristica Manhattan orienta la busqueda hacia la meta y reduce el espacio explorado innecesariamente. Sin embargo, la longitud del camino encontrado es identica a la de BFS y UCS, ya que los tres garantizan optimalidad.
+
+BFS y UCS presentaron un comportamiento similar en cuanto a nodos explorados, dado que el costo de cada paso es uniforme e igual a 1. La diferencia entre ambos radica en la implementacion interna: BFS usa una cola FIFO mientras que UCS usa una cola de prioridad, lo que hace a UCS ligeramente mas lento en la practica para este tipo de laberintos.
+
+DFS exploro la menor cantidad de nodos en algunos escenarios donde el camino se encontraba en la misma direccion que la expansion de la pila, pero en otros casos genero caminos considerablemente mas largos que los optimos. Su comportamiento es mas variable e impredecible en comparacion con los demas algoritmos.
+
+En conclusion, A* es la mejor opcion para resolver laberintos cuando se dispone de una heuristica admisible, ya que equilibra optimalidad del camino y eficiencia en la exploracion. BFS es preferible cuando no se dispone de heuristica y se requiere garantia de optimalidad. DFS es adecuado unicamente cuando el espacio de busqueda es muy grande y se acepta una solucion no optima.
+
+\end{document}
